@@ -31,7 +31,7 @@ fn main() {
         .init()
         .unwrap();
 
-    match riffol::riffol(std::env::args()) {
+    match riffol::riffol(std::env::args().collect::<Vec<String>>()) {
         Err(e) => eprintln!("{:?}", e),
         _ => (),
     }
