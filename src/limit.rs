@@ -36,6 +36,12 @@ pub enum RLimit {
     Files(Limit),
 }
 
+#[cfg(target_pointer_width = "64")]
+type LibcInt = u64;
+
+#[cfg(target_pointer_width = "32")]
+type LibcInt = u32;
+
 pub fn setlimit(rlimit: &RLimit) {
     let (resource, limit) = match rlimit {
         RLimit::Memory(v) => (libc::RLIMIT_AS, v),
@@ -44,14 +50,14 @@ pub fn setlimit(rlimit: &RLimit) {
     };
     let limit = match limit {
         Limit::Num(v) => *v,
-        Limit::Infinity => libc::RLIM_INFINITY,
+        Limit::Infinity => libc::RLIM_INFINITY as u64, //libc returns u32 on 32bit systems
     };
     unsafe {
         let _result = libc::setrlimit(
             resource,
             &libc::rlimit {
-                rlim_cur: limit,
-                rlim_max: limit,
+                rlim_cur: limit as LibcInt,
+                rlim_max: limit as LibcInt,
             },
         );
     };
